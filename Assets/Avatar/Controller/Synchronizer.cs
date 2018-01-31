@@ -12,6 +12,7 @@ public class Synchronizer : MonoBehaviour {
 
     public bool SynchronizePosition = true;
     public bool SynchronizeRotation = true;
+    public bool IsMiniMap = false;
 
     void Awake()
     {
@@ -51,7 +52,6 @@ public class Synchronizer : MonoBehaviour {
     {
         if (TrackedObject != null)
         {
-            //gameObject.transform.rotation = tracker.Rotation;
             gameObject.transform.rotation = Quaternion.Euler(deltaRot().eulerAngles + origRot.eulerAngles);
         }
     }
@@ -73,8 +73,20 @@ public class Synchronizer : MonoBehaviour {
     {
         if (TrackedObject != null)
         {
-            Quaternion dRot = Quaternion.Euler(TrackedObject.transform.rotation.eulerAngles - origTrackedRot.eulerAngles);
-            return dRot;
+            Vector3 dEuler = TrackedObject.transform.rotation.eulerAngles - origTrackedRot.eulerAngles;
+
+            if (IsMiniMap)
+            {
+                Vector3 modDEuler = new Vector3(0, dEuler.y, 0); // Ignore rotation along the x & z axis to keep the mini-map locked and intuitively aligned with rotation
+                Quaternion dRot = Quaternion.Euler(modDEuler);
+                return dRot;
+            }
+            else
+            {
+
+                Quaternion dRot = Quaternion.Euler(dEuler);
+                return dRot;
+            }
         }
         else
         {
